@@ -55,6 +55,7 @@ void dev_init()
     // init .text.dev section like vdev.
     timer_hw_init(NS_PL2_PTIMER_IRQ);
 #if defined(CONFIG_DMA_ENGINE) && defined(CONFIG_SUN4I_DMA)
+    printf("dma_irq_enabled\n");
     dma_irq_enable();
 #endif
 }
