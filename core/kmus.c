@@ -18,10 +18,11 @@ static inline void __set_cpsr(unsigned val)
 void kmus_snapshot(vmid_t normal_id, vmid_t kmus_id, struct core_regs *regs)
 {
     printf("%s start\n", __func__);
-
+    
     int i, j;
     struct vcpu *vcpu = NULL;
     struct vmcb *vm = vm_find(normal_id);
+    
 
     for (i = 0; i < vm->num_vcpus; i++) {
         vcpu = vm->vcpu[i];
@@ -32,7 +33,9 @@ void kmus_snapshot(vmid_t normal_id, vmid_t kmus_id, struct core_regs *regs)
 
         vcpu->vmcr = GICH_READ(GICH_VMCR);
     }
+    
     vm_copy(normal_id, kmus_id, regs);
+//    vm_start(normal_id);
 
     printf("%s end\n", __func__);
 }

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -e
+
+export PATH=/home/jigi/Workspace/optee-bpi/toolchains/aarch32/bin:$PATH
+
+#make bananapi_defconfig
+
+make clean
+make -j8
+
+sudo cp build/khypervisor-bananapi.bin /var/lib/tftpboot/khyp
+arm-linux-gnueabihf-objdump -D khypervisor-bananapi.axf > dump

@@ -31,6 +31,9 @@ void platform_init()
     paging_add_mapping(0x01c28000, 0x01c28000, MT_DEVICE, SZ_1K);
     // add mapping for dma
     paging_add_mapping(0x01c02000, 0x01c02000, MT_DEVICE, SZ_4K);
+    // set memory for array
+    paging_add_mapping(0x90000000, 0x90000000, MT_DEVICE, SZ_128M);
+    paging_add_mapping(0xa0000000, 0xa0000000, MT_DEVICE, SZ_128M);
 
     paging_add_mapping(CFG_HYP_START_ADDRESS, CFG_HYP_START_ADDRESS, MT_WRITEBACK_RW_ALLOC, SZ_128M);
     for(i = 0; i < CONFIG_NR_VMS; i++){

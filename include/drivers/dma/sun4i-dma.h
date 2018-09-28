@@ -3,6 +3,8 @@
 #include <arch/armv7.h>
 #include <arch/psci.h>
 #include <arch/irq.h>
+#include <lib/list.h>
+#include <stdlib.h>
 
 //TODO: For now, we only defined NDMA related things.
 //      Define everything related DMA later.
@@ -28,8 +30,8 @@
 /* irq enable register setting */
 #define DMA_IRQ_ENABLE_MASK         0x1
 
-#define NDMA0_HALF_IRQ_ENABLE_SHIFT     1
-#define NDMA0_END_IRQ_ENABLE_SHIFT      0
+#define NDMA0_HALF_IRQ_ENABLE_SHIFT     0
+#define NDMA0_END_IRQ_ENABLE_SHIFT      1
 
 #define NDMA_LOADING_SHIFT          31 
 #define NDMA_CONTI_MODE_EN_SHIFT    30
@@ -69,6 +71,27 @@
 
 /* set when especially( read the ARM v7-AR reference ) */
 #define NDMA_AUTO_GATING_REG_MASK 0x1 << 16 
+
+typedef struct dma_wait
+{
+    uint32_t src_addr;
+    uint32_t dst_addr;
+    int bc;
+    struct dma_wait *next;
+}dma_wait;
+
+typedef struct Queue
+{
+    dma_wait *front;
+    dma_wait *rear;
+    int count;
+}Queue;
+
+void InitQueue(Queue *q);
+int IsEmpty(Queue *q);
+void Enqueue(Queue *q, uint32_t src, uint32_t dst, int bc);
+dma_wait Dequeue(Queue *q);
+void chain_enqueue(uint32_t src_addr, uint32_t dst_addr, int total_bytes);
 
 void dma_irq_enable();
 void dma_reg_init();

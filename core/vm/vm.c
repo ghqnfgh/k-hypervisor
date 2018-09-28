@@ -85,6 +85,7 @@ vmcb_state_t vm_init(vmid_t vmid)
 vmcb_state_t vm_start(vmid_t vmid)
 {
     struct vmcb *vm = vm_find(vmid);
+    printf("asdfasdfasdfasdfasdf\n");
     if (vm == NO_VM_FOUND) {
         return VM_NOT_EXISTED;
     }

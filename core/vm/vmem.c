@@ -18,6 +18,8 @@ extern uint32_t __VM_PGTABLE;
 
 extern struct vm_config vm_conf[];
 
+extern struct Queue trans_queue;
+
 void vmem_create(struct vmem *vmem, vmid_t vmid)
 {
     vmem->base = (uint32_t) &__VM_PGTABLE + (PGTABLE_SIZE * vmid);
@@ -95,16 +97,34 @@ void vmem_copy(struct vmem *from, struct vmem *to)
     uint32_t offset = 0;
     uint32_t from_mem = from->dram.pa;
     uint32_t to_mem = to->dram.pa;
+//    int i = 0;
+//    int iter_count = 0;
 
+///**************************************dma_test*****************
     int d_count = 0;
     int s_count = 0;
+    printf("from_mem : 0x%08x, to_mem : 0x%08x\n", from_mem, to_mem);
+    InitQueue(&trans_queue);
 
-    dma_transfer(0, (uint32_t)from_mem, (uint32_t)to_mem,SZ_64K);
+    printf("here\n");
+    chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, SZ_128M);
+
+    printf("here2\n");
+    dma_wait *value = (dma_wait*) malloc (sizeof(dma_wait));
+    *value = Dequeue(&trans_queue);
+    printf("here3\n");
+    printf("0x%08x\n ", from->dram.size);
+    dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_128K);
+
+//******************************************************************/
+
+//    dma_transfer(0, (uint32_t)from_mem, (uint32_t)to_mem,SZ_128K);
+//    dma_transfer(0, (uint32_t)from_mem + SZ_128K, (uint32_t)to_mem+ SZ_128K,SZ_128K);
 
     for (offset = 0; offset < from->dram.size; offset+=4) {
         if(readl(from_mem + offset) != readl(to_mem + offset))
             d_count++;
-        else if(readl(from_mem + offset) == readl(to_mem + offset) && (readl(to_mem + offset) != 0xffffffff) )
+        else if(readl(from_mem + offset) == readl(to_mem + offset)/* && (readl(to_mem + offset) != 0xffffffff)*/ )
             s_count++;
 //        writel(readl(from_mem + offset), (to_mem + offset));
     }
