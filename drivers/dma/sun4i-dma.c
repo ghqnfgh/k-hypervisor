@@ -84,6 +84,9 @@ static irqreturn_t dma_irq_handler(int irq, void *pregs, void *pdata)
         *value = Dequeue(&trans_queue);
         printf("%s, 0x%08x, 0x%08x, 0x%08x\n",__func__, value->src_addr, value->dst_addr, value->bc);
         dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, value->bc);
+    }else{
+        sched_vcpu_register(0,0);
+        sched_vcpu_attach(0,0);
     }
     return VMM_IRQ; 
 }
@@ -124,7 +127,7 @@ void dma_transfer(int pchan, uint32_t src_addr, uint32_t dst_addr, int bc)
         bc(length of src data memory) = byte count
             >> maximum byte count : 128KB
     */
-    printf("in dma_transfer\n");
+//    printf("in dma_transfer\n");
     uint32_t ndma_base_addr = DMA_BASE_ADDRESS + NDMA_REG_BASE_ADDRESS(pchan);
 
     /* dma reg init */

@@ -127,6 +127,7 @@ void sched_start(void)
     struct scheduler *const s = sched[pcpu];
     struct vcpu *vcpu = NULL;
 
+
     debug_print("[hyp] switch_to_initial_guest:\n");
 
     /* Select the first guest context to switch to. */
