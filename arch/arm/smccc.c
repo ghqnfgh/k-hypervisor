@@ -65,23 +65,20 @@ int emulate_arm_smccc(struct core_regs *regs)
             }
 ****************************************************************/
 ///**********************kmus**************************************
-        printf("jigi\n");
         if(kmus_flag_id == 1){
             vcpuid_t vcpuid = get_current_vcpuid();
+
             printf("unregsiter: %d\n", vcpuid);
             sched_vcpu_detach(vcpuid, 0);
             sched_vcpu_unregister(vcpuid, 0);
-//            printf("after unregister -----------------------------\n");
 
             kmus_snapshot(0, 2, regs);
-//            printf("after snapshot -----------------------------\n");
 
             kmus_flag_id = 0;
             
             //when do not use dma
-            sched_vcpu_register(0,0);
-            sched_vcpu_attach(0,0);
-//            return 0;
+//            sched_vcpu_register(0,0);
+//            sched_vcpu_attach(0,0);
             
 //            printf("is Registered - pcpu : %d\n", sched_vcpu_register(0,0));
         }

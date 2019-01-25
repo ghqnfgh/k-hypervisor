@@ -168,15 +168,7 @@ void vm_restore(vmid_t restore_vmid)
 
     vmem_restore(&vm->vmem);
 }
-/*
-void vm_dma_restore(vmid_t from, vmid_t to)
-{
-    struct vmcb *from = vm_find(from);
-    struct vmcb *to = vm_find(to);
-    
-    vmem_copy(&from->vmem, &to->vmem);
-}
-*/
+
 void vm_copy(vmid_t from, vmid_t to, struct core_regs *regs)
 {
     struct vmcb *vm_from = vm_find(from);

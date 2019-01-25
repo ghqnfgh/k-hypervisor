@@ -19,7 +19,7 @@ extern uint32_t __VM_PGTABLE;
 extern struct vm_config vm_conf[];
 
 extern struct Queue trans_queue;
-static int mem_switcher = 1;
+static int mem_switcher = 0;
 
 void vmem_create(struct vmem *vmem, vmid_t vmid)
 {
@@ -134,7 +134,7 @@ void vmem_copy(struct vmem *from, struct vmem *to)
             //            s_count++;
             writel(readl(from_mem + offset), (to_mem + offset));
         }
-//        mem_switcher = 0;
+        mem_switcher = 0;
     }
     /*
     for(i = 0; i < SZ_128M; i+=4){
