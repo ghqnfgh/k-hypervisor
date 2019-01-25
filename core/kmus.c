@@ -3,6 +3,8 @@
 #include <drivers/gic-v2.h>
 #include <arch/gicv2_bit.h>
 
+#include <core/scheduler.h>
+
 static inline unsigned __get_cpsr(void)
 {
     unsigned long retval;
@@ -43,17 +45,21 @@ void kmus_start(vmid_t normal_id, vmid_t kmus_id, struct core_regs *regs)
     unsigned long cpsr;
 
     // stop the VM (unregister from scheduler)
-    vm_suspend(normal_id, regs);
+//    vm_suspend(normal_id, regs);
+    sched_vcpu_detach(normal_id,0);
+    sched_vcpu_unregister(normal_id,0);
 
     // change the type of back-up VM
     struct vmcb *vm = vm_find(kmus_id);
     vm->vcpu[0]->type = VCPU_NORMAL;
 
     // start the VM (register VM to scheduler)
-    vm_start(kmus_id);
+//    vm_start(kmus_id);
 
     // delete the VM struct (free the memory)
-    vm_delete(normal_id);
+//    vm_delete(normal_id);
+//    sched_vcpu_register(kmus_id, 0);
+    sched_vcpu_attach(kmus_id, 0);
 
     // enable irq for waiting next tick
     cpsr = __get_cpsr();

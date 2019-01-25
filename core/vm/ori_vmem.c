@@ -6,7 +6,6 @@
 #include <vm_map.h>
 #include <vm_config.h>
 #include <stdio.h>
-#include <drivers/dma/sun4i-dma.h>
 
 extern uint32_t __VM_PGTABLE;
 
@@ -17,8 +16,6 @@ extern uint32_t __VM_PGTABLE;
 #define VTTBR_BADDR_MASK                                0x000000FFFFFFFFFFULL
 
 extern struct vm_config vm_conf[];
-
-extern struct Queue trans_queue;
 
 void vmem_create(struct vmem *vmem, vmid_t vmid)
 {
@@ -97,35 +94,8 @@ void vmem_copy(struct vmem *from, struct vmem *to)
     uint32_t offset = 0;
     uint32_t from_mem = from->dram.pa;
     uint32_t to_mem = to->dram.pa;
-//    int i = 0;
-//    int iter_count = 0;
-
-/**************************************dma_test*****************
-//    int d_count = 0;
-//    int s_count = 0;
-    printf("from_mem : 0x%08x, to_mem : 0x%08x, from_mem->size:0x%08x\n", from_mem, to_mem,from->dram.size);
-    InitQueue(&trans_queue);
-
-    chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, from->dram.size);
-//    printf("trans_queue size : %d\n", trans_queue.count);
-
-    dma_wait *value = (dma_wait*) malloc (sizeof(dma_wait));
-    *value = Dequeue(&trans_queue);
-    printf("src_addr : 0x%08x, dst_addr : 0x%08x, bc : 0x%08x\n", value->src_addr, value->dst_addr, value->bc);
-    dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_128K);
-
-******************************************************************/
-
-//    dma_transfer(0, (uint32_t)from_mem, (uint32_t)to_mem,SZ_128K);
-//    dma_transfer(0, (uint32_t)from_mem + SZ_128K, (uint32_t)to_mem+ SZ_128K,SZ_128K);
 
     for (offset = 0; offset < from->dram.size; offset+=4) {
-//        if(readl(from_mem + offset) != readl(to_mem + offset))
-//            d_count++;
-//        else if(readl(from_mem + offset) == readl(to_mem + offset)/* && (readl(to_mem + offset) != 0xffffffff)*/ )
-//            s_count++;
         writel(readl(from_mem + offset), (to_mem + offset));
     }
-//    printf("how difference : %d\n", d_count);
-//    printf("how same : %d\n", s_count);
 }

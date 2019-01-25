@@ -34,7 +34,10 @@ void platform_init()
 
     paging_add_mapping(CFG_HYP_START_ADDRESS, CFG_HYP_START_ADDRESS, MT_WRITEBACK_RW_ALLOC, SZ_128M);
     for(i = 0;  i < CONFIG_NR_VMS; i++){
-        paging_add_mapping(vm_conf[i].pa_start, vm_conf[i].pa_start, MT_WRITEBACK_RW_ALLOC, vm_conf[i].va_offsets);
+        // Noncacheable 
+        paging_add_mapping(vm_conf[i].pa_start, vm_conf[i].pa_start, MT_NONCACHEABLE, vm_conf[i].va_offsets);
+        // use cache, policy : writeback
+//        paging_add_mapping(vm_conf[i].pa_start, vm_conf[i].pa_start, MT_WRITEBACK_RW_ALLOC, vm_conf[i].va_offsets);
     }
 }
 

@@ -55,10 +55,16 @@ void init_cpu()
     platform_init();
 
     hsctlr = read_cp32(HSCTLR);
+    //cache disable
+//    hsctlr |= HSCTLR_BIT(M) | HSCTLR_BIT(A)/* | HSCTLR_BIT(C) | HSCTLR_BIT(I)*/;
+    //cache enable
     hsctlr |= HSCTLR_BIT(M) | HSCTLR_BIT(A) | HSCTLR_BIT(C) | HSCTLR_BIT(I);
     write_cp32(hsctlr, HSCTLR);
 
     hcr = read_cp32(HCR);
+    //cache disable
+//    hcr |= HCR_BIT(TSC)/* | HCR_BIT(TSW)*/;
+    //cache enable
     hcr |= HCR_BIT(TSC) | HCR_BIT(TSW);
     write_cp32(hcr, HCR);
 
@@ -98,10 +104,16 @@ void init_secondary_cpus()
     write_cp32(HMAIR1_VALUE, HMAIR1);
 
     hsctlr = read_cp32(HSCTLR);
+    //cache disable
+//    hsctlr |= HSCTLR_BIT(M) | HSCTLR_BIT(A)/* | HSCTLR_BIT(C) | HSCTLR_BIT(I)*/;
+    //cache enable
     hsctlr |= HSCTLR_BIT(M) | HSCTLR_BIT(A) | HSCTLR_BIT(C) | HSCTLR_BIT(I);
     write_cp32(hsctlr, HSCTLR);
 
     hcr = read_cp32(HCR);
+    //cache disable
+//    hcr |= HCR_BIT(TSC)/* | HCR_BIT(TSW)*/;
+    //cache enable
     hcr |= HCR_BIT(TSC) | HCR_BIT(TSW);
     write_cp32(hcr, HCR);
 

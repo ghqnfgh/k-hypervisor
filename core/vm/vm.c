@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <atags.h>
+#include <size.h>
+#include <core/scheduler.h>
 
 void print_vm(struct vmcb *vm);
 
@@ -85,6 +87,7 @@ vmcb_state_t vm_init(vmid_t vmid)
 vmcb_state_t vm_start(vmid_t vmid)
 {
     struct vmcb *vm = vm_find(vmid);
+    
     if (vm == NO_VM_FOUND) {
         return VM_NOT_EXISTED;
     }
@@ -165,22 +168,43 @@ void vm_restore(vmid_t restore_vmid)
 
     vmem_restore(&vm->vmem);
 }
-
+/*
+void vm_dma_restore(vmid_t from, vmid_t to)
+{
+    struct vmcb *from = vm_find(from);
+    struct vmcb *to = vm_find(to);
+    
+    vmem_copy(&from->vmem, &to->vmem);
+}
+*/
 void vm_copy(vmid_t from, vmid_t to, struct core_regs *regs)
 {
     struct vmcb *vm_from = vm_find(from);
     struct vmcb *vm_to = vm_find(to);
+//    printf("vm_from : %08x, vm_to : %08x\n",vm_from->vmem.dram.pa, vm_to->vmem.dram.pa);
+    printf("here you're\n");
     if (vm_from == NO_VM_FOUND || vm_to == NO_VM_FOUND) {
         printf("%s[%d] vm_find failed\n");
         return ;
     }
 
+    printf("here you're2\n");
 
     int i;
+    long long int counter = 0;
     for (i = 0; i < vm_from->num_vcpus; i++)
         vcpu_copy(vm_from->vcpu[i], vm_to->vcpu[i], regs);
 
+    printf("here you're3\n");
     vmem_copy(&vm_from->vmem, &vm_to->vmem);
+
+    //test code
+    for(i = 0; i < SZ_128M; i+=4){
+        if(readl(0x48000000 + i) != readl(0x68000000 + i))
+            counter++;
+    }
+    printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>> i : %d, counter : %lld\n", i, counter);
+
     vdev_copy(&vm_from->vdevs, &vm_to->vdevs);
 
     vm_to->state = vm_from->state;

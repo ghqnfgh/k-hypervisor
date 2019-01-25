@@ -84,7 +84,6 @@ hvmm_status_t sched_perform_switch(struct core_regs *regs)
     if (s->next_vcpuid != VCPUID_INVALID) {
         vcpuid_t previous = VCPUID_INVALID;
         vcpuid_t next = VCPUID_INVALID;
-
         debug_print("[sched] curr:%x next:%x\n", s->current_vcpuid, s->next_vcpuid);
 
         /* We do the things in this way before do_context_switch()
@@ -96,9 +95,15 @@ hvmm_status_t sched_perform_switch(struct core_regs *regs)
         s->next_vcpuid = VCPUID_INVALID;
 
         s->current_vcpu = vcpu_find(s->current_vcpuid);
-        s->current_vm = vm_find(s->current_vcpu->vmid);
+        if (!(s->current_vcpu)) {
+            printf("wtf... prev: %d, next: %d\n", previous, next);
+            s->current_vcpu = vcpu_find(previous);
+            s->current_vm = vm_find(s->current_vcpu->vmid);
+        } else {
+            s->current_vm = vm_find(s->current_vcpu->vmid);
 
-        do_context_switch(previous, next, param_regs);
+            do_context_switch(previous, next, param_regs);
+        }
         /* MUST NOT COME BACK HERE IF regs == NULL */
 
         return HVMM_STATUS_SUCCESS;

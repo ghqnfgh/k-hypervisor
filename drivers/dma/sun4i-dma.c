@@ -5,7 +5,7 @@
 #include<core/scheduler.h>
 
 struct Queue trans_queue;
-
+static int enqueue_count = 0;
 void InitQueue(Queue *q) 
 {
     q->front = q->rear = NULL;
@@ -61,7 +61,7 @@ void chain_enqueue(uint32_t src_addr, uint32_t dst_addr, int total_bytes){
     // to enqueue when the byte_counters of src_memory to dst_memory is bigger than
     // SZ_128K(because both parameters are 4Bytes, so use SZ_128K)
     int t_weight = 0;
-    int bc = SZ_128K;
+    int bc = SZ_16K;
     int t_bc = total_bytes;
 //    int counter = 0;
     while(t_bc >= bc){
@@ -70,21 +70,24 @@ void chain_enqueue(uint32_t src_addr, uint32_t dst_addr, int total_bytes){
         t_bc -= bc;
         t_weight += bc;
     }
-    if(t_bc < SZ_128K && t_bc > 0){
+    if(t_bc < bc && t_bc > 0){
         Enqueue(&trans_queue, src_addr + t_bc, dst_addr + t_bc, t_bc);
     }
 }
 
 static irqreturn_t dma_irq_handler(int irq, void *pregs, void *pdata)
 {
-    printf("DMA IRQ[%d] is registered\n", irq);
+//    printf("DMA IRQ[%d] is registered\n", irq);
     writel(0, DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_EN_REG);
     if(!IsEmpty(&trans_queue)){
+        printf("now in %d\n", enqueue_count++);
         dma_wait *value = (dma_wait*)malloc(sizeof(dma_wait));
         *value = Dequeue(&trans_queue);
         printf("%s, 0x%08x, 0x%08x, 0x%08x\n",__func__, value->src_addr, value->dst_addr, value->bc);
         dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, value->bc);
     }else{
+        printf("put vcpu back\n");
+        //register to scheduler again, when every process is finished
         sched_vcpu_register(0,0);
         sched_vcpu_attach(0,0);
     }

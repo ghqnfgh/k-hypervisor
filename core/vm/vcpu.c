@@ -11,6 +11,7 @@
 
 static struct list_head vcpu_list;
 static int nr_vcpus = 0;
+static int visit_time = 0;
 
 void vcpu_setup()
 {
@@ -184,6 +185,20 @@ void vcpu_copy(struct vcpu *from, struct vcpu *to, struct core_regs *regs)
 
 struct vcpu *vcpu_find(vcpuid_t vcpuid)
 {
+    visit_time++;
+//    printf("[now nr_vcpus == %d]\n", nr_vcpus);
+//    if (nr_vcpus != 3)
+//        printf("wtf?\n");
+//    if(visit_time %= 300 && nr_vcpus == 1) 
+//        printf("[now nr_vcpus == 1]\n");
+//    if(visit_time %= 300 && nr_vcpus == 2) 
+//        printf("[now nr_vcpus == 2]\n");
+    if(nr_vcpus == 1 && visit_time > 600){
+        uint32_t pcpu = smp_processor_id();
+        extern struct scheduler *sched[NR_CPUS];
+        printf("curr:%x, next:%x \n", sched[pcpu]->current_vcpuid, sched[pcpu]->next_vcpuid);
+    }
+        
     struct vcpu *vcpu = NULL;
     list_for_each_entry(struct vcpu, vcpu, &vcpu_list, head) {
         if (vcpu->vcpuid == vcpuid) {
