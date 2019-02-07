@@ -173,21 +173,17 @@ void vm_copy(vmid_t from, vmid_t to, struct core_regs *regs)
 {
     struct vmcb *vm_from = vm_find(from);
     struct vmcb *vm_to = vm_find(to);
-//    printf("vm_from : %08x, vm_to : %08x\n",vm_from->vmem.dram.pa, vm_to->vmem.dram.pa);
-    printf("here you're\n");
     if (vm_from == NO_VM_FOUND || vm_to == NO_VM_FOUND) {
         printf("%s[%d] vm_find failed\n");
         return ;
     }
 
-    printf("here you're2\n");
 
     int i;
     long long int counter = 0;
     for (i = 0; i < vm_from->num_vcpus; i++)
         vcpu_copy(vm_from->vcpu[i], vm_to->vcpu[i], regs);
 
-    printf("here you're3\n");
     vmem_copy(&vm_from->vmem, &vm_to->vmem);
 
     //test code
