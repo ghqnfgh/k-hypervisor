@@ -5,7 +5,7 @@
 #include<core/scheduler.h>
 
 struct Queue trans_queue;
-static int enqueue_count = 0;
+//static int enqueue_count = 0;
 void InitQueue(Queue *q) 
 {
     q->front = q->rear = NULL;
@@ -77,10 +77,10 @@ void chain_enqueue(uint32_t src_addr, uint32_t dst_addr, int total_bytes){
 
 static irqreturn_t dma_irq_handler(int irq, void *pregs, void *pdata)
 {
-//    printf("DMA IRQ[%d] is registered\n", irq);
+    printf("DMA IRQ[%d] is registered\n", irq);
     writel(0, DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_EN_REG);
     if(!IsEmpty(&trans_queue)){
-        printf("now in %d\n", enqueue_count++);
+//        printf("now in %d\n", enqueue_count++);
         dma_wait *value = (dma_wait*)malloc(sizeof(dma_wait));
         *value = Dequeue(&trans_queue);
         printf("%s, 0x%08x, 0x%08x, 0x%08x\n",__func__, value->src_addr, value->dst_addr, value->bc);

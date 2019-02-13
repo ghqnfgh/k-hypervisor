@@ -57,8 +57,8 @@ int emulate_arm_smccc(struct core_regs *regs)
             printf("i : 0x%08x, off_4_counter : %lld\n", i, counter);
 
             printf("unregsiter: %d\n", vcpuid);
-//            sched_vcpu_detach(vcpuid, 0);
-//            sched_vcpu_unregister(vcpuid, 0);
+            sched_vcpu_detach(vcpuid, 0);
+            sched_vcpu_unregister(vcpuid, 0);
             kmus_snapshot(2, 0, regs);
 //            kmus_flag_id = 1;
         }

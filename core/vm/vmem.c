@@ -117,7 +117,7 @@ void vmem_copy(struct vmem *from, struct vmem *to)
         *value = Dequeue(&trans_queue);
         printf("src_addr : 0x%08x, dst_addr : 0x%08x, bc : 0x%08x\n", value->src_addr, value->dst_addr, value->bc);
         dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_128K);
-        mem_switcher = 1;
+//        mem_switcher = 0;
     } else if (mem_switcher == 1){
         uint32_t offset = 0;
         printf("mem_switcher is %d, do snapshot with memory operation\n", mem_switcher);
