@@ -180,18 +180,10 @@ void vm_copy(vmid_t from, vmid_t to, struct core_regs *regs)
 
 
     int i;
-    long long int counter = 0;
     for (i = 0; i < vm_from->num_vcpus; i++)
         vcpu_copy(vm_from->vcpu[i], vm_to->vcpu[i], regs);
 
     vmem_copy(&vm_from->vmem, &vm_to->vmem);
-
-    //test code
-    for(i = 0; i < SZ_128M; i+=4){
-        if(readl(0x48000000 + i) != readl(0x68000000 + i))
-            counter++;
-    }
-    printf(">>>>>>>>>>>>>>>>>>>>>>>>>>>> i : %d, counter : %lld\n", i, counter);
 
     vdev_copy(&vm_from->vdevs, &vm_to->vdevs);
 

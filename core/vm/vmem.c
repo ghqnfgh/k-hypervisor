@@ -107,16 +107,18 @@ void vmem_copy(struct vmem *from, struct vmem *to)
 ///**************************************dma_test*****************
 //    int d_count = 0;
 //    int s_count = 0;
-        printf("from_mem : 0x%08x, to_mem : 0x%08x, from_mem->size:0x%08x\n", from_mem, to_mem,from->dram.size);
+
         InitQueue(&trans_queue);
 
-        chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, from->dram.size);
-        //    printf("trans_queue size : %d\n", trans_queue.count);
+//        chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, from->dram.size);
+        chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, SZ_128M);
 
         dma_wait *value = (dma_wait*) malloc (sizeof(dma_wait));
         *value = Dequeue(&trans_queue);
-        printf("src_addr : 0x%08x, dst_addr : 0x%08x, bc : 0x%08x\n", value->src_addr, value->dst_addr, value->bc);
-        dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_128K);
+
+//        printf("before FIRST DRQ, DMA_IRQ_STA_REG value : %08x \n",readl(DMA_BASE_ADDRESS ));
+        
+        dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_32K);
 //        mem_switcher = 0;
     } else if (mem_switcher == 1){
         uint32_t offset = 0;

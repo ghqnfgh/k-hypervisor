@@ -27,7 +27,6 @@ int emulate_arm_smccc(struct core_regs *regs)
         if(kmus_flag_id == 1){
             vcpuid_t vcpuid = get_current_vcpuid();
 
-            printf("unregsiter: %d\n", vcpuid);
             sched_vcpu_detach(vcpuid, 0);
             sched_vcpu_unregister(vcpuid, 0);
 
