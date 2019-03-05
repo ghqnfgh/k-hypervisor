@@ -3,7 +3,6 @@
 #include<drivers/dma/sun4i-dma.h>
 #include<size.h>
 #include<core/scheduler.h>
-//static int channel_switcher = 3;
 struct Queue trans_queue;
 void InitQueue(Queue *q) 
 {
@@ -46,11 +45,9 @@ dma_wait Dequeue(Queue *q)
         return *zero;
     }
     in = q->front;
-//    printf("Dequeue(in) : %d, %d, %d\n", in->src_addr, in->dst_addr, in->bc);
     zero->src_addr = in->src_addr;
     zero->dst_addr = in->dst_addr;
     zero->bc = in->bc;
-//    printf("Dequeue(zero) : %d, %d, %d\n", zero->src_addr, zero->dst_addr, zero->bc);
     q->front = in->next;
     free(in);
     q->count--;
@@ -62,9 +59,7 @@ void chain_enqueue(uint32_t src_addr, uint32_t dst_addr, int total_bytes){
     int t_weight = 0;
     int bc = SZ_4K;
     int t_bc = total_bytes;
-//    int counter = 0;
     while(t_bc >= bc){
-//        printf("in : %s, src_addr : 0x%08x, dst_addr : 0x%08x, bc : 0x%08x, counter :%d\n", __func__, src_addr + t_weight, dst_addr+ t_weight, bc, counter++);
         Enqueue(&trans_queue, src_addr + t_weight, dst_addr + t_weight, bc);
         t_bc -= bc;
         t_weight += bc;
@@ -78,8 +73,6 @@ static irqreturn_t dma_irq_handler(int irq, void *pregs, void *pdata)
 {
 
     uint32_t pend_reg_address = DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_PEND_STA_REG;
-//    printf("DMA IRQ[%d] is registered\n", irq);
-//    printf("in ISR, IRQ_PEND_STA_REG : %08x, cor_count : %d\n", readl(pend_reg_address), cor_count );
     writel(0, DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_EN_REG);
     uint32_t pend_reg_val = readl(pend_reg_address);
     writel(pend_reg_val, pend_reg_address);
@@ -87,19 +80,9 @@ static irqreturn_t dma_irq_handler(int irq, void *pregs, void *pdata)
     if(!IsEmpty(&trans_queue)){
         dma_wait *value = (dma_wait*)malloc(sizeof(dma_wait));
         *value = Dequeue(&trans_queue);
-//        printf("%s, 0x%08x, 0x%08x, 0x%08x\n",__func__, value->src_addr, value->dst_addr, value->bc);
         dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, value->bc);
     }else{
-//        /*
-        int i = 0;
-        int cor_count = 0;
-        for(i = 0; i <SZ_128M; i+=4){
-            if(readl(0x48000000 + i) == readl(0x68000000 + i))
-                cor_count++;
-        }
-//         */
-
-        printf("put vcpu back, cor_count : %d\n", cor_count );
+        printf("put vcpu back\n");
         //register to scheduler again, when every process is finished
         sched_vcpu_register(0,0);
         sched_vcpu_attach(0,0);
@@ -130,11 +113,6 @@ void dma_reg_init()
     uint32_t auto_gating_reg = 0;
 
     irq_enable_reg = (DMA_IRQ_ENABLE_MASK << NDMA0_END_IRQ_ENABLE_SHIFT);
-//    | (DMA_IRQ_ENABLE_MASK << NDMA1_END_IRQ_ENABLE_SHIFT)
-//    | (DMA_IRQ_ENABLE_MASK << NDMA2_END_IRQ_ENABLE_SHIFT) 
-//    | (DMA_IRQ_ENABLE_MASK << NDMA3_END_IRQ_ENABLE_SHIFT) 
-//    | (DMA_IRQ_ENABLE_MASK << NDMA4_END_IRQ_ENABLE_SHIFT) 
-//    | (DMA_IRQ_ENABLE_MASK << NDMA5_END_IRQ_ENABLE_SHIFT);
     
     auto_gating_reg = NDMA_AUTO_GATING_REG_MASK;
 
@@ -153,9 +131,6 @@ void dma_transfer(int pchan, uint32_t src_addr, uint32_t dst_addr, int bc)
 
     uint32_t ndma_base_addr = DMA_BASE_ADDRESS + NDMA_REG_BASE_ADDRESS(pchan);
 
-//    uint32_t irq_enable_reg = 0;
-//    irq_enable_reg = (DMA_IRQ_ENABLE_MASK << NDMA0_END_IRQ_ENABLE_SHIFT);
-
     /* dma reg init */
     dma_reg_init();
     
@@ -165,12 +140,6 @@ void dma_transfer(int pchan, uint32_t src_addr, uint32_t dst_addr, int bc)
     writel((uint32_t)bc, ndma_base_addr + SUN4I_DMA_BYTE_COUNT_REG);
 
     ndma_configure(ndma_base_addr);
-//    writel(irq_enable_reg, DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_EN_REG);
-    
-//    printf("DMA_IRQ_EN_REG value : %08x \n",readl(DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_EN_REG ));
-//    printf("DMA_IRQ_PEND_STA_REG value : %08x \n",readl(DMA_BASE_ADDRESS + SUN4I_DMA_IRQ_PEND_STA_REG ));
-//    printf("NDMA_AUTO_GATE_REG value : %08x \n",readl(DMA_BASE_ADDRESS + SUN4I_NDMA_AUTO_GATING_REG ));
-//    printf("NDMA_CTRL_REG value : %08x \n",readl(ndma_base_addr + SUN4I_DMA_CFG_REG ));
 }
 
 void ndma_configure(uint32_t ndma_base_addr)

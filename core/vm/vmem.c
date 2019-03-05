@@ -19,7 +19,6 @@ extern uint32_t __VM_PGTABLE;
 extern struct vm_config vm_conf[];
 
 extern struct Queue trans_queue;
-static int mem_switcher = 0;
 
 void vmem_create(struct vmem *vmem, vmid_t vmid)
 {
@@ -75,7 +74,6 @@ hvmm_status_t vmem_save(void)
 
 hvmm_status_t vmem_restore(struct vmem *vmem)
 {
-    //get hcr's register value
     uint32_t hcr = 0;
 
     write_cp32(vmem->vtcr, VTCR);
@@ -97,55 +95,12 @@ void vmem_copy(struct vmem *from, struct vmem *to)
 
     uint32_t from_mem = from->dram.pa;
     uint32_t to_mem = to->dram.pa;
-    if(mem_switcher == 0){
-        printf("mem_switcher is %d, do snapshot with dma\n", mem_switcher);
-    // copy all of the physical memory
-//    uint32_t offset = 0;
-//    int i = 0;
-//    long long int counter = 0;
+    InitQueue(&trans_queue);
 
-///**************************************dma_test*****************
-//    int d_count = 0;
-//    int s_count = 0;
-
-        InitQueue(&trans_queue);
-
-//        chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, from->dram.size);
-        chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, SZ_128M);
-
-        dma_wait *value = (dma_wait*) malloc (sizeof(dma_wait));
-        *value = Dequeue(&trans_queue);
-
-//        printf("before FIRST DRQ, DMA_IRQ_STA_REG value : %08x \n",readl(DMA_BASE_ADDRESS ));
+    chain_enqueue((uint32_t)from_mem, (uint32_t)to_mem, from->dram.size);
+    dma_wait *value = (dma_wait*) malloc (sizeof(dma_wait));
+    *value = Dequeue(&trans_queue);
         
-        dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_32K);
-//        mem_switcher = 0;
-    } else if (mem_switcher == 1){
-        uint32_t offset = 0;
-        printf("mem_switcher is %d, do snapshot with memory operation\n", mem_switcher);
-
-//******************************************************************/
-
-//    dma_transfer(0, (uint32_t)from_mem, (uint32_t)to_mem,SZ_128K);
-//    dma_transfer(0, (uint32_t)from_mem + SZ_128K, (uint32_t)to_mem+ SZ_128K,SZ_128K);
-
-        for (offset = 0; offset < from->dram.size; offset+=4) {
-            //        if(readl(from_mem + offset) != readl(to_mem + offset))
-            //            d_count++;
-            //        else if(readl(from_mem + offset) == readl(to_mem + offset)/* && (readl(to_mem + offset) != 0xffffffff)*/ )
-            //            s_count++;
-            writel(readl(from_mem + offset), (to_mem + offset));
-        }
-        mem_switcher = 0;
-    }
-    /*
-    for(i = 0; i < SZ_128M; i+=4){
-        if(readl(0x48000000 + i) != readl( 0x58000000 + i)) 
-            counter++;
-    }
-    printf(">>>>>>>>>>>>>> i : 0x%08x, off_4_counter : %lld\n", i/4, counter);
-     */
-
-//    printf("how difference : %d\n", d_count);
-//    printf("how same : %d\n", s_count);
+    dma_transfer(0, (uint32_t)value->src_addr, (uint32_t)value->dst_addr, SZ_4K);
+    printf("%s end\n", __func__);
 }
